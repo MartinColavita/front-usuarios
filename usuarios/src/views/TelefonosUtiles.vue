@@ -2,15 +2,27 @@
   <div>
     <h1 class="display-4 mt-4 mb-4">Teléfonos Útiles</h1>
 
-    <!-- Botones de teléfonos útiles -->
+    <!-- Botones de teléfonos útiles con imagen predeterminada -->
     <div class="list-group mt-4">
       <button
         v-for="telefono in telefonos"
         :key="telefono.id"
         @click="llamar(telefono.numero)"
-        class="list-group-item list-group-item-action btn btn-danger"
+        class="list-group-item list-group-item-action"
       >
-        {{ telefono.nombre }}
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <img
+              src="@/assets/logo.png"
+              alt="Imagen del teléfono"
+              class="telefono-imagen"
+            />
+          </div>
+          <div>
+            <div>Teléfono Útil</div>
+            <div>{{ telefono.descripcion }}</div>
+          </div>
+        </div>
       </button>
     </div>
 
@@ -23,7 +35,7 @@
           :key="telefono.id"
           class="list-group-item"
         >
-          <strong>{{ telefono.nombre }}:</strong> {{ telefono.numero }}
+          <strong>Teléfono Útil:</strong> {{ telefono.numero }}
           <br />
           <span>{{ telefono.descripcion }}</span>
         </li>

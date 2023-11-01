@@ -1,13 +1,31 @@
 import { createRouter, createWebHistory } from "vue-router";
+
 import HomeView from "../views/HomeView.vue";
 import Mapa from "../views/Mapa.vue";
 import TelefonosUtiles from "../views/TelefonosUtiles.vue";
 
 const routes = [
-  { path: "/", name: "home", component: HomeView },
-  { path: "/mapa", component: Mapa },
-  { path: "/telefonos-utiles", component: TelefonosUtiles },
-  { path: "*", redirect: "/" }, // Ruta predeterminada redirige a la vista de inicio
+  {
+    path: "/",
+    name: "home",
+    component: HomeView,
+  },
+
+  {
+    path: "/mapa",
+    component: Mapa,
+  },
+
+  {
+    path: "/telefonos-utiles",
+    component: TelefonosUtiles,
+  },
+
+  // Actualizar ruta comodín
+  {
+    path: "/:catchAll(.*)",
+    redirect: "/",
+  },
 ];
 
 const router = createRouter({
