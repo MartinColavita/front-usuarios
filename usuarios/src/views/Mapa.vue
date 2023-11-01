@@ -1,16 +1,16 @@
 <template>
   <div>
     <h1 class="display-4 mt-4">Mapa</h1>
+
     <!-- Contenedor para el mapa -->
-    <div id="map" style="height: 400px;"></div>
-    
+    <div id="map" style="height: 400px"></div>
+
     <!-- Información sobre los DEA y guía de ayuda -->
     <div class="mt-3">
       <h3>Información sobre los DEA</h3>
       <ul>
         <li v-for="dea in deas" :key="dea.id">
-          <strong>Ubicación:</strong> {{ dea.location }}
-          <br>
+          <strong>Ubicación:</strong> {{ dea.location }} <br />
           <strong>Descripción:</strong> {{ dea.description }}
         </li>
       </ul>
@@ -27,50 +27,56 @@
   </div>
 </template>
 
-
 <script>
-import L from 'leaflet';
-import axios from 'axios';
+import L from "leaflet";
+import axios from "axios";
+
+// Latitud y longitud iniciales - La Plata : -34.92036049285432, -57.95385763860928
+const latInicial = -34.92036049285432;
+const lonInicial = -57.95385763860928;
 
 export default {
   data() {
     return {
-      deas: [], // Inicialmente, el arreglo de DEA estará vacío
+      deas: [], // inicializar arreglo vacío
     };
   },
-  mounted() {
-    // Crea el mapa
-    const map = L.map('map').setView([latitud, longitud], zoom);
 
-    // Agrega un fondo de mapa 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  mounted() {
+    // Crear mapa con lat/lon iniciales y zoom -> El nivel de zoom se puede configurar según las necesidades:
+    //13 - Ciudades grandes ; 15 - Ciudades; 17 - Calles; 19 - Edificios
+    const map = L.map("map").setView([latInicial, lonInicial], 13);
+
+    // Agregar capa de OpenStreetMaps
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19,
     }).addTo(map);
 
-    // Realizar una solicitud a para obtener la lista de DEAs
-    axios.get('http://127.0.0.1:8080/api/mapas/')
-      .then(response => {
-        // Asignar la lista de DEA desde la respuesta de la API
+    // Obtener DEAs desde API
+    axios
+      .get("http://127.0.0.1:8081/api/mapas/")
+      .then((response) => {
         this.deas = response.data;
-        
+
         // Agregar marcadores de DEA al mapa
         this.deas.forEach((dea) => {
-          L.marker([dea.latitud, dea.longitud]).addTo(map).bindPopup(`<b>${dea.cantDeas}</b><br>${dea.descripcion}</b><br>`).openPopup();
+          L.marker([dea.latitud, dea.longitud])
+            .addTo(map)
+            .bindPopup(`<b>${dea.cantDeas}</b><br>${dea.descripcion}<br>`)
+            .openPopup();
         });
       })
-      .catch(error => {
-        console.error('Error al obtener la lista de DEA:', error);
+      .catch((error) => {
+        console.error("Error obteniendo DEAs", error);
       });
   },
 };
 </script>
 
-
-
 <style scoped>
-  /* Estilos CSS personalizados para el mapa */
-  #map {
-    width: 100%;
-    margin: 0 auto;
-  }
+#map {
+  width: 100%;
+  height: 400px;
+  margin: 0 auto;
+}
 </style>
