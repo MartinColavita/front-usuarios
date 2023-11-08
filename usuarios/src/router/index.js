@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import HomeView from "../views/HomeView.vue";
 import Mapa from "../views/Mapa.vue";
 import TelefonosUtiles from "../views/TelefonosUtiles.vue";
-import Emergencias from "../views/Emergencias.vue"; // Importa el componente Emergencias.vue
+import Emergencias from "../views/Emergencias.vue";
 
 const routes = [
   {

@@ -32,16 +32,11 @@
   align-items: center;
   justify-content: center;
   height: 100vh;
-  background: linear-gradient(
-    to bottom,
-    #f5f5f5,
-    #f5f5f5
-  ); /* Degrade gris clarito */
 }
 
 /* Estilo para el título */
 .titulo {
-  font-size: 28px; /* Tamaño del título */
+  font-size: 38px; /* Tamaño del título */
   margin-bottom: 20px; /* Espacio entre el título y los botones */
   color: #007bff; /* Color del título */
 }
