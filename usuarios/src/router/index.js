@@ -1,8 +1,8 @@
 import { createRouter, createWebHistory } from "vue-router";
-
 import HomeView from "../views/HomeView.vue";
 import Mapa from "../views/Mapa.vue";
 import TelefonosUtiles from "../views/TelefonosUtiles.vue";
+import Emergencias from "../views/Emergencias.vue"; // Importa el componente Emergencias.vue
 
 const routes = [
   {
@@ -19,6 +19,12 @@ const routes = [
   {
     path: "/telefonos-utiles",
     component: TelefonosUtiles,
+  },
+
+  {
+    path: "/emergencias", // Ruta para el botón de emergencia
+    name: "Emergencias",
+    component: Emergencias, // Asigna el componente Emergencias.vue
   },
 
   // Actualizar ruta comodín

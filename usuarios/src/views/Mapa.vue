@@ -10,12 +10,17 @@
 
     <!-- Información sobre los DEA -->
     <div class="info-section">
-      <h3 class="section-title">Información sobre los DEA</h3>
+      <h3 class="section-title">Información sobre los DEAs mas cercanos</h3>
       <ul class="dea-list">
         <!-- Recorremos los DEAs y mostramos su información -->
         <li v-for="dea in deas" :key="dea.id" class="dea-item">
-          <strong>Ubicación:</strong> {{ dea.location }} <br />
-          <strong>Descripción:</strong> {{ dea.description }}
+          <!-- Mostramos la ubicación y descripción de los DEAs 
+          <strong>Ubicación:</strong> {{ dea.latitud }}, {{ dea.longitud
+          }}<br />-->
+
+          <strong>Descripción:</strong> {{ dea.descripcion }}<br />
+          <!-- Agregamos la cantidad de DEAs en la ubicación -->
+          <strong>Cantidad de DEAs:</strong> {{ dea.cantDeas }}
         </li>
       </ul>
     </div>
@@ -42,8 +47,8 @@ export default {
   data() {
     return {
       deas: [],
-      latInicial: -34.92036049285432, // Latitud inicial
-      lonInicial: -57.95385763860928, // Longitud inicial
+      latInicial: -34.92036049285432, // Latitud inicial - La Plata
+      lonInicial: -57.95385763860928, // Longitud inicial - La Plata
     };
   },
 
