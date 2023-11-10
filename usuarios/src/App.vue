@@ -19,7 +19,7 @@
         <ul class="navbar-nav">
           <li class="nav-item">
             <router-link to="/mapa" class="nav-link"
-              >Ver Mapa con los DEAS más cercanos</router-link
+              >Ver Mapa con los DEAS</router-link
             >
           </li>
           <li class="nav-item">

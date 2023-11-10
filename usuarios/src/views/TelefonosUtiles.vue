@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1 class="display-4 mt-4 mb-4">Teléfonos Útiles</h1>
+    <h1 class="display-4 mt-4">Teléfonos Útiles</h1>
 
     <!-- Botones de teléfonos útiles con imagen predeterminada -->
     <div class="list-group mt-4">
@@ -27,7 +27,7 @@
     </div>
 
     <!-- Información detallada de teléfonos útiles -->
-    <div class="mt-4">
+    <!--     <div class="mt-4">
       <h3 class="mt-3">Información de Teléfonos Útiles</h3>
       <ul class="list-group">
         <li
@@ -40,7 +40,7 @@
           <span>{{ telefono.descripcion }}</span>
         </li>
       </ul>
-    </div>
+    </div> -->
   </div>
 </template>
 

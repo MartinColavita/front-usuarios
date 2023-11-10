@@ -5,35 +5,28 @@
 
     <!-- Contenedor para el mapa -->
     <div class="map-wrapper">
+      <!-- Div para el mapa con el id "map" -->
       <div id="map"></div>
     </div>
 
     <!-- Información sobre los DEA -->
-    <div class="info-section">
-      <h3 class="section-title">Información sobre los DEAs mas cercanos</h3>
-      <ul class="dea-list">
-        <!-- Recorremos los DEAs y mostramos su información -->
-        <li v-for="dea in deas" :key="dea.id" class="dea-item">
-          <!-- Mostramos la ubicación y descripción de los DEAs 
-          <strong>Ubicación:</strong> {{ dea.latitud }}, {{ dea.longitud
-          }}<br />-->
-
-          <strong>Descripción:</strong> {{ dea.descripcion }}<br />
-          <!-- Agregamos la cantidad de DEAs en la ubicación -->
-          <strong>Cantidad de DEAs:</strong> {{ dea.cantDeas }}
-        </li>
-      </ul>
-    </div>
-
-    <!-- Guía de Ayuda a Paso a Paso -->
     <div class="info-section guide">
-      <h3 class="section-title">Guía de Ayuda a Paso a Paso</h3>
+      <!-- Título de la sección de DEA más cercanos -->
+      <h3 class="section-title">Información sobre los DEAs del mapa</h3>
+      <!-- Lista de DEA más cercanos -->
       <ul class="guide-list">
-        <li>Paso 1: Encuentra el DEA más cercano en el mapa.</li>
-        <li>Paso 2: Ve hacia la ubicación del DEA.</li>
-        <li>Paso 3: Asegúrate de que el área esté despejada.</li>
-        <li>Paso 4: Sigue las instrucciones del DEA para su uso.</li>
-        <li>Paso 5: Llama al servicio de emergencia local (ejemplo: 911).</li>
+        <!-- Recorremos todos los DEAs y mostramos su información -->
+        <li
+          v-for="dea in deas"
+          :key="dea.id"
+          class="dea-item"
+          @click="seleccionarDea(dea)"
+          :class="{ selected: dea === deaSeleccionado }"
+        >
+          <!-- Información del DEA -->
+          <strong>Descripción:</strong> {{ dea.descripcion }}<br />
+          <strong>Cantidad de DEAs:</strong> {{ dea.cantDeas }}<br />
+        </li>
       </ul>
     </div>
   </div>
@@ -47,20 +40,29 @@ export default {
   data() {
     return {
       deas: [],
-      latInicial: -34.92036049285432, // Latitud inicial - La Plata
-      lonInicial: -57.95385763860928, // Longitud inicial - La Plata
+      latInicial: -34.92036049285432, // Latitud inicial - Argentina
+      lonInicial: -57.95385763860928, // Longitud inicial - Argentina
+      deaSeleccionado: null, // Almacena el DEA seleccionado
+      map: null, // Referencia al objeto del mapa
     };
   },
 
   mounted() {
-    // Crear mapa con lat/lon iniciales y zoom -> El nivel de zoom se puede configurar según las necesidades:
-    //13 - Ciudades grandes ; 15 - Ciudades; 17 - Calles; 19 - Edificios
-    const map = L.map("map").setView([this.latInicial, this.lonInicial], 13);
+    // Crear mapa con lat/lon iniciales y zoom
+    this.map = L.map("map").setView([this.latInicial, this.lonInicial], 5);
 
     // Agregar capa de OpenStreetMaps
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19,
-    }).addTo(map);
+    }).addTo(this.map);
+
+    // Definir un icono personalizado para todos los DEAs
+    const deaIcon = L.icon({
+      iconUrl: "/icons/ubicacionDea.ico",
+      iconSize: [32, 32],
+      iconAnchor: [16, 32],
+      popupAnchor: [0, -32],
+    });
 
     // Obtener DEAs desde la API
     axios
@@ -75,8 +77,9 @@ export default {
           const longitud = parseFloat(dea.longitud);
 
           if (!isNaN(latitud) && !isNaN(longitud)) {
-            L.marker([latitud, longitud])
-              .addTo(map)
+            // Agregar marcador al mapa con icono personalizado
+            dea.marker = L.marker([latitud, longitud], { icon: deaIcon })
+              .addTo(this.map)
               .bindPopup(`<b>${dea.cantDeas}</b><br>${dea.descripcion}<br>`)
               .openPopup();
           } else {
@@ -87,6 +90,28 @@ export default {
       .catch((error) => {
         console.error("Error obteniendo DEAs", error);
       });
+  },
+
+  methods: {
+    // Método para seleccionar un DEA y hacer zoom en su ubicación
+    seleccionarDea(dea) {
+      // Desactivar la selección del DEA anterior (si hay alguno)
+      if (this.deaSeleccionado) {
+        this.deaSeleccionado.marker.closePopup();
+      }
+
+      // Activar la selección del nuevo DEA
+      this.deaSeleccionado = dea;
+      dea.marker.openPopup();
+      this.map.setView(dea.marker.getLatLng(), 15);
+    },
+
+    beforeDestroy() {
+      // Destruir el mapa y los marcadores cuando cambias de vista(para que no me muestre varios marcadores en el mapa)
+      if (this.map) {
+        this.map.remove();
+      }
+    },
   },
 };
 </script>
@@ -144,5 +169,10 @@ export default {
 
 .guide-list li {
   margin: 5px 0;
+}
+
+/* Estilo para resaltar el DEA seleccionado */
+.dea-item.selected {
+  background-color: #f0ffe6;
 }
 </style>
