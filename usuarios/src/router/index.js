@@ -1,5 +1,8 @@
 import { createRouter, createWebHistory } from "vue-router";
 import HomeView from "../views/HomeView.vue";
+import Mapa from "../views/Mapa.vue";
+import TelefonosUtiles from "../views/TelefonosUtiles.vue";
+import Emergencias from "../views/Emergencias.vue";
 
 const routes = [
   {
@@ -7,14 +10,27 @@ const routes = [
     name: "home",
     component: HomeView,
   },
+
   {
-    path: "/about",
-    name: "about",
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () =>
-      import(/* webpackChunkName: "about" */ "../views/AboutView.vue"),
+    path: "/mapa",
+    component: Mapa,
+  },
+
+  {
+    path: "/telefonos-utiles",
+    component: TelefonosUtiles,
+  },
+
+  {
+    path: "/emergencias", // Ruta para el botón de emergencia
+    name: "Emergencias",
+    component: Emergencias, // Asigna el componente Emergencias.vue
+  },
+
+  // Actualizar ruta comodín
+  {
+    path: "/:catchAll(.*)",
+    redirect: "/",
   },
 ];
 
