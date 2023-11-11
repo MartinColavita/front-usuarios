@@ -81,11 +81,10 @@ export default {
       lonInicial: -57.95385763860928,
       // DEA seleccionado
       selectedDea: null,
+      // Mapa Leaflet
+      map: null,
     };
   },
-
-  // Mapa Leaflet
-  map: null,
 
   // Método que se ejecuta después de que el componente ha sido montado en el DOM
   mounted() {
@@ -146,7 +145,14 @@ export default {
 
           if (!isNaN(latitud) && !isNaN(longitud)) {
             // Agregar marcador al mapa con información del DEA y enlace para centrar
-            const marker = L.marker([latitud, longitud])
+            const customIcon = L.icon({
+              iconUrl: "/icons/ubicacionDea.ico", // Ruta a tu icono personalizado
+              iconSize: [32, 32],
+              iconAnchor: [16, 32],
+              popupAnchor: [0, -32],
+            });
+
+            const marker = L.marker([latitud, longitud], { icon: customIcon })
               .addTo(this.map)
               .bindPopup(
                 `<b>${dea.cantDeas}</b><br>${dea.descripcion}<br><br>${dea.mail}<br>` +
@@ -178,7 +184,14 @@ export default {
 
           if (!isNaN(latitud) && !isNaN(longitud)) {
             // Agregar marcador al mapa con información del DEA y enlace para centrar
-            const marker = L.marker([latitud, longitud])
+            const customIcon = L.icon({
+              iconUrl: "/icons/ubicacionDea.ico", // Ruta a tu icono personalizado
+              iconSize: [32, 32],
+              iconAnchor: [16, 32],
+              popupAnchor: [0, -32],
+            });
+
+            const marker = L.marker([latitud, longitud], { icon: customIcon })
               .addTo(this.map)
               .bindPopup(
                 `<b>${dea.cantDeas}</b><br>${dea.descripcion}<br><br>${dea.mail}<br>` +
