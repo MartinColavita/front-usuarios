@@ -25,7 +25,6 @@
         >
           <!-- Información del DEA -->
           <strong>Descripción:</strong> {{ dea.descripcion }}<br />
-          <strong>Cantidad de DEAs:</strong> {{ dea.cantDeas }}<br />
         </li>
       </ul>
     </div>

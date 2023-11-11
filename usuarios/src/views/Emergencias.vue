@@ -25,7 +25,6 @@
         >
           <!-- Información del DEA -->
           <strong>Descripción:</strong> {{ dea.descripcion }}<br />
-          <strong>Cantidad de DEAs:</strong> {{ dea.cantDeas }}<br />
           <!-- Botón para enviar un aviso de emergencia -->
           <button @click="enviarMail(dea.mail)">Aviso de emergencia</button>
         </li>
@@ -60,6 +59,23 @@
         </audio>
       </div>
     </div>
+
+    <!-- Alert para mostrar mensaje enviado -->
+    <div
+      v-if="mensajeEnviado"
+      class="alert alert-success alert-dismissible fade show"
+      role="alert"
+    >
+      La solicitud de aviso ya fue enviada a un representante.
+      <button
+        type="button"
+        class="close"
+        @click="cerrarAlert"
+        aria-label="Close"
+      >
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
   </div>
 </template>
 
@@ -83,6 +99,8 @@ export default {
       selectedDea: null,
       // Mapa Leaflet
       map: null,
+      // flag para mostrar el mensaje de envío de correo
+      mensajeEnviado: false,
     };
   },
 
@@ -229,12 +247,12 @@ export default {
     },
 
     // Método para enviar un correo al DEA más cercano
-    enviarMail(email) {
+    enviarMail() {
       axios
-        .post("http://tu-servidor-java/enviar-correo", {
-          to: email,
-          subject: "Emergencia detectada",
-          message: "Se aproxima un afectado. ¡Necesitamos ayuda!",
+        .post("http://127.0.0.1:8081/api/mails/enviar-mail")
+        .then(() => {
+          // Mostrar el alert de éxito
+          this.mensajeEnviado = true;
         })
         .catch((error) => {
           console.error("Error al enviar el correo", error);
@@ -268,6 +286,10 @@ export default {
       if (this.map) {
         this.map.remove();
       }
+    },
+
+    cerrarAlert() {
+      this.mensajeEnviado = false;
     },
   },
 };
@@ -385,5 +407,16 @@ export default {
 /* Estilo para resaltar el DEA seleccionado */
 .dea-item.selected {
   background-color: #f0ffe6;
+}
+
+/* Estilos para el mensaje de alerta */
+.alert {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  max-width: 400px;
+  z-index: 1000;
 }
 </style>
