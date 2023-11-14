@@ -24,9 +24,9 @@
           @click="selectDea(dea)"
         >
           <!-- Información del DEA -->
-          <strong>Descripción:</strong> {{ dea.descripcion }}<br />
-          <!-- Botón para enviar un aviso de emergencia -->
-          <button @click="enviarMail(dea.mail)">Aviso de emergencia</button>
+          <strong>Nombre Sede:</strong> {{ dea.name }}<br />
+          <!-- Botón para enviar un aviso de emergencia  | dea es un dato de tipo proxy (tener en cuenta esto)-->
+          <button @click="enviarMail(dea.emails)">Aviso de emergencia</button>
         </li>
       </ul>
     </div>
@@ -101,6 +101,7 @@ export default {
       map: null,
       // flag para mostrar el mensaje de envío de correo
       mensajeEnviado: false,
+      emailsArray: [],
     };
   },
 
@@ -135,8 +136,8 @@ export default {
 
         // Calcular distancias y ordenar los DEAs por cercanía
         this.deas.forEach((dea) => {
-          const latitudDea = parseFloat(dea.latitud);
-          const longitudDea = parseFloat(dea.longitud);
+          const latitudDea = parseFloat(dea.latitude);
+          const longitudDea = parseFloat(dea.longitude);
 
           if (!isNaN(latitudDea) && !isNaN(longitudDea)) {
             const distancia = this.calcularDistancia(
@@ -147,7 +148,7 @@ export default {
             );
             dea.distancia = distancia;
           } else {
-            console.error(`Coordenadas inválidas para ${dea.descripcion}`);
+            console.error(`Coordenadas inválidas para ${dea.name}`);
           }
         });
 
@@ -158,8 +159,8 @@ export default {
 
         // Agregar marcadores al mapa para las 5 direcciones más cercanas
         deasAMostrar.forEach((dea) => {
-          const latitud = parseFloat(dea.latitud);
-          const longitud = parseFloat(dea.longitud);
+          const latitud = parseFloat(dea.latitude);
+          const longitud = parseFloat(dea.longitude);
 
           if (!isNaN(latitud) && !isNaN(longitud)) {
             // Agregar marcador al mapa con información del DEA y enlace para centrar
@@ -173,14 +174,14 @@ export default {
             const marker = L.marker([latitud, longitud], { icon: customIcon })
               .addTo(this.map)
               .bindPopup(
-                `<b>${dea.cantDeas}</b><br>${dea.descripcion}<br><br>${dea.mail}<br>` +
+                `<br>${dea.name}<br><br>${dea.emails}<br>` +
                   `<a href="#" @click="centrarEnDea(${latitud}, ${longitud})">Centrar en el mapa</a>`
               );
 
             // Asignar el marcador al DEA para referencia futura
             dea.marker = marker;
           } else {
-            console.error(`Coordenadas inválidas para ${dea.descripcion}`);
+            console.error(`Coordenadas inválidas para ${dea.name}`);
           }
         });
       });
@@ -197,8 +198,27 @@ export default {
 
         // Agregar marcadores de DEA al mapa
         this.deas.forEach((dea) => {
-          const latitud = parseFloat(dea.latitud);
-          const longitud = parseFloat(dea.longitud);
+          const latitud = parseFloat(dea.latitude);
+          const longitud = parseFloat(dea.longitude);
+
+          if (Array.isArray(dea.emails) && dea.emails.length > 0) {
+            // Utilizar una expresión regular para dividir la cadena de correos electrónicos
+            const emailsArray = dea.emails[0].match(/\S+@\S+/g) || [];
+
+            // Actualizar el objeto dea con el array de correos electrónicos
+            // dea.emailsArray = emailsArray;
+
+            this.emailsArray = dea.emailsArray;
+
+            console.log(
+              "---->  lista de mails cuando llama a los mapas ya cargada:",
+              emailsArray
+            );
+          } else {
+            console.warn(
+              `La lista de correos electrónicos está vacía para ${dea.name}.`
+            );
+          }
 
           if (!isNaN(latitud) && !isNaN(longitud)) {
             // Agregar marcador al mapa con información del DEA y enlace para centrar
@@ -212,14 +232,14 @@ export default {
             const marker = L.marker([latitud, longitud], { icon: customIcon })
               .addTo(this.map)
               .bindPopup(
-                `<b>${dea.cantDeas}</b><br>${dea.descripcion}<br><br>${dea.mail}<br>` +
+                `<br>${dea.name}<br><br>${dea.emails}<br>` +
                   `<a href="#" @click="centrarEnDea(${latitud}, ${longitud})">Centrar en el mapa</a>`
               );
 
             // Asignar el marcador al DEA para referencia futura
             dea.marker = marker;
           } else {
-            console.error(`Coordenadas inválidas para ${dea.descripcion}`);
+            console.error(`Coordenadas inválidas para ${dea.name}`);
           }
         });
       })
@@ -248,20 +268,45 @@ export default {
 
     // Método para enviar un correo al DEA más cercano
     enviarMail() {
-      axios
-        .post("http://127.0.0.1:8081/api/mails/enviar-mail")
-        .then(() => {
-          // Mostrar el alert de éxito
-          this.mensajeEnviado = true;
-        })
-        .catch((error) => {
-          console.error("Error al enviar el correo", error);
+      console.log("---->  emailsArray", this.emailsArray);
+
+      // Validar que haya al menos un correo electrónico antes de enviar
+      if (this.emailsArray && this.emailsArray.length > 0) {
+        console.log(
+          "----> Correos electrónicos a enviar | variable deaEmails:",
+          this.emailsArray
+        );
+
+        // Iterar sobre la lista de correos electrónicos y enviar uno por uno
+        this.emailsArray.forEach((email) => {
+          axios
+            .post("http://127.0.0.1:8081/api/mails/enviar-mail", {
+              email: email,
+            })
+            .then(() => {
+              // Mostrar el alert de éxito
+              this.mensajeEnviado = true;
+            })
+            .catch((error) => {
+              console.error("Error al enviar el correo", error);
+            });
         });
+      } else {
+        console.warn("La lista de correos electrónicos está vacía.");
+      }
+
+      // Limpiar el array de correos electrónicos
+      this.emailsArray = [];
     },
 
     // Método para centrar el mapa en las coordenadas de un DEA
     centrarEnDea(latitud, longitud) {
-      this.map.setView([latitud, longitud], 15);
+      // Verificar si los valores son números válidos antes de establecer la vista
+      if (!isNaN(latitud) && !isNaN(longitud)) {
+        this.map.setView([latitud, longitud], 15);
+      } else {
+        console.error("Coordenadas inválidas:", latitud, longitud);
+      }
     },
 
     // Método para seleccionar un DEA y centrar el mapa en él
@@ -274,11 +319,19 @@ export default {
       // Seleccionar el nuevo DEA
       this.selectedDea = dea;
 
-      // Centrar el mapa en las coordenadas del DEA
-      this.map.setView([parseFloat(dea.latitud), parseFloat(dea.longitud)], 15);
+      // Verificar si las coordenadas son números válidos antes de centrar el mapa
+      const latitud = parseFloat(dea.latitude);
+      const longitud = parseFloat(dea.longitude);
 
-      // Abrir el popup del DEA seleccionado
-      dea.marker.openPopup();
+      if (!isNaN(latitud) && !isNaN(longitud)) {
+        // Centrar el mapa en las coordenadas del DEA
+        this.map.setView([latitud, longitud], 15);
+
+        // Abrir el popup del DEA seleccionado
+        dea.marker.openPopup();
+      } else {
+        console.error("Coordenadas inválidas para", dea.name);
+      }
     },
 
     beforeDestroy() {
