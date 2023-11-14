@@ -24,7 +24,7 @@
           :class="{ selected: dea === deaSeleccionado }"
         >
           <!-- Información del DEA -->
-          <strong>Descripción:</strong> {{ dea.descripcion }}<br />
+          <strong>Descripción:</strong> {{ dea.name }}<br />
         </li>
       </ul>
     </div>
@@ -72,17 +72,20 @@ export default {
         // Agregar marcadores de DEA al mapa
         this.deas.forEach((dea) => {
           // Parsear las coordenadas de cadena a números
-          const latitud = parseFloat(dea.latitud);
-          const longitud = parseFloat(dea.longitud);
+          const latitud = parseFloat(dea.latitude);
+          const longitud = parseFloat(dea.longitude);
 
           if (!isNaN(latitud) && !isNaN(longitud)) {
+            // Inicializar la propiedad marker como un objeto vacío
+            dea.marker = {};
+
             // Agregar marcador al mapa con icono personalizado
             dea.marker = L.marker([latitud, longitud], { icon: deaIcon })
               .addTo(this.map)
-              .bindPopup(`<b>${dea.cantDeas}</b><br>${dea.descripcion}<br>`)
+              .bindPopup(`<br>${dea.name}<br>`)
               .openPopup();
           } else {
-            console.error(`Coordenadas inválidas para ${dea.descripcion}`);
+            console.error(`Coordenadas inválidas para ${dea.name}`);
           }
         });
       })
@@ -95,22 +98,28 @@ export default {
     // Método para seleccionar un DEA y hacer zoom en su ubicación
     seleccionarDea(dea) {
       // Desactivar la selección del DEA anterior (si hay alguno)
-      if (this.deaSeleccionado) {
+      if (this.deaSeleccionado && this.deaSeleccionado.marker) {
         this.deaSeleccionado.marker.closePopup();
       }
 
       // Activar la selección del nuevo DEA
       this.deaSeleccionado = dea;
-      dea.marker.openPopup();
-      this.map.setView(dea.marker.getLatLng(), 15);
-    },
 
-    beforeDestroy() {
-      // Destruir el mapa y los marcadores cuando cambias de vista(para que no me muestre varios marcadores en el mapa)
-      if (this.map) {
-        this.map.remove();
+      // Verificar si dea.marker está definido y tiene el método openPopup
+      if (dea.marker && typeof dea.marker.openPopup === "function") {
+        dea.marker.openPopup();
+        this.map.setView(dea.marker.getLatLng(), 15);
+      } else {
+        console.error("Marker no válido para el DEA:", dea.name);
       }
     },
+  },
+
+  beforeUnmount() {
+    // Destruir el mapa y los marcadores cuando cambias de vista (para que no me muestre varios marcadores en el mapa)
+    if (this.map) {
+      this.map.remove();
+    }
   },
 };
 </script>
