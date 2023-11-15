@@ -26,7 +26,10 @@
           <!-- Información del DEA -->
           <strong>Nombre Sede:</strong> {{ dea.name }}<br />
           <!-- Botón para enviar un aviso de emergencia  | dea es un dato de tipo proxy (tener en cuenta esto)-->
-          <button @click="enviarMail(dea.emails)">Aviso de emergencia</button>
+          <button @click="enviarMail(emailsArray)" v-if="emailsArray > 0">
+            Aviso de emergencia
+          </button>
+          <!--   <button @click="enviarMail(emailsArray)">Aviso de emergencia</button>-->
         </li>
       </ul>
     </div>
@@ -205,15 +208,9 @@ export default {
             // Utilizar una expresión regular para dividir la cadena de correos electrónicos
             const emailsArray = dea.emails[0].match(/\S+@\S+/g) || [];
 
-            // Actualizar el objeto dea con el array de correos electrónicos
-            // dea.emailsArray = emailsArray;
+            //const emailsArray = dea.emails;
 
-            this.emailsArray = dea.emailsArray;
-
-            console.log(
-              "---->  lista de mails cuando llama a los mapas ya cargada:",
-              emailsArray
-            );
+            console.log("---->  la constante: ", emailsArray);
           } else {
             console.warn(
               `La lista de correos electrónicos está vacía para ${dea.name}.`
@@ -266,37 +263,52 @@ export default {
       return distancia;
     },
 
-    // Método para enviar un correo al DEA más cercano
-    enviarMail() {
-      console.log("---->  emailsArray", this.emailsArray);
-
-      // Validar que haya al menos un correo electrónico antes de enviar
-      if (this.emailsArray && this.emailsArray.length > 0) {
-        console.log(
-          "----> Correos electrónicos a enviar | variable deaEmails:",
-          this.emailsArray
+    // AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+    /*     async enviarMail(emailsArray) {
+      const mail = emailsArray[0];
+      console.log("---->  en el metodo enviar mail:", mail);
+      try {
+        console.log("---->  en el try :", mail);
+        const response = await axios.post(
+          "http://127.0.0.1:8081/api/mails/enviar-mail",
+          { mail: emailsArray }
         );
-
-        // Iterar sobre la lista de correos electrónicos y enviar uno por uno
-        this.emailsArray.forEach((email) => {
-          axios
-            .post("http://127.0.0.1:8081/api/mails/enviar-mail", {
-              email: email,
-            })
-            .then(() => {
-              // Mostrar el alert de éxito
-              this.mensajeEnviado = true;
-            })
-            .catch((error) => {
-              console.error("Error al enviar el correo", error);
-            });
-        });
-      } else {
-        console.warn("La lista de correos electrónicos está vacía.");
+        console.log(response.data);
+      } catch (error) {
+        console.error("Error al enviar los correos electrónicos:", error);
       }
+    }, */
+
+    // Método para enviar un correo al DEA más cercano
+    async enviarMail(emailsArray) {
+      // Validar que haya al menos un correo electrónico antes de enviar
+      // if (emailsArray && emailsArray.length > 0) {
+
+      const mail = emailsArray[0];
+
+      console.log("---->  en el metodo enviar mail:", mail);
+
+      // Iterar sobre la lista de correos electrónicos y enviar uno por uno
+      emailsArray.forEach((email) => {
+        console.log("---->  en el for:", email);
+        axios
+          .post("http://127.0.0.1:8081/api/mails/enviar-mail", {
+            email: email,
+          })
+          .then(() => {
+            // Mostrar el alert de éxito
+            this.mensajeEnviado = true;
+          })
+          .catch((error) => {
+            console.error("Error al enviar el correo", error);
+          });
+      });
+      /*       } else {
+        console.warn("La lista de correos electrónicos está vacía.");
+      } */
 
       // Limpiar el array de correos electrónicos
-      this.emailsArray = [];
+      //this.emailsArray = [];
     },
 
     // Método para centrar el mapa en las coordenadas de un DEA
