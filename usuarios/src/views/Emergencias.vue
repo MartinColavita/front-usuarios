@@ -27,7 +27,6 @@
           <strong>Nombre Sede:</strong> {{ dea.name }}<br />
           <!-- Botón para enviar un aviso de emergencia -->
           <button @click="enviarMail(dea.emails)">Aviso de emergencia</button>
-          <!--   <button @click="enviarMail(emailsArray)">Aviso de emergencia</button>-->
         </li>
       </ul>
     </div>
@@ -250,23 +249,22 @@ export default {
     },
 
     // Método para enviar un correo al DEA más cercano
-    async enviarMail(dea) {
-      // Validar que haya al menos un correo electrónico antes de enviar
-      if (dea.emails != null) {
-        console.log("---->  en el metodo enviar mail:", dea.emails);
+    enviarMail(emails) {
+      console.log("entro al metodo con el parametro:", emails);
 
-        axios
-          .post("http://127.0.0.1:8081/api/mails/enviar-mail")
-          .then(() => {
-            // Mostrar el alert de éxito
-            this.mensajeEnviado = true;
-          })
-          .catch((error) => {
-            console.error("Error al enviar el correo", error);
-          });
-      } else {
-        console.warn("La lista de correos electrónicos está vacía.");
-      }
+      axios
+        .post("http://127.0.0.1:8081/api/mails/enviar-mail", emails, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+        .then(() => {
+          // Mostrar el alert de éxito
+          this.mensajeEnviado = true;
+        })
+        .catch((error) => {
+          console.error("Error al enviar el correo", error);
+        });
     },
 
     // Método para centrar el mapa en las coordenadas de un DEA
