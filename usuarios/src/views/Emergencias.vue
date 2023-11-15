@@ -25,10 +25,8 @@
         >
           <!-- Información del DEA -->
           <strong>Nombre Sede:</strong> {{ dea.name }}<br />
-          <!-- Botón para enviar un aviso de emergencia  | dea es un dato de tipo proxy (tener en cuenta esto)-->
-          <button @click="enviarMail(emailsArray)" v-if="emailsArray > 0">
-            Aviso de emergencia
-          </button>
+          <!-- Botón para enviar un aviso de emergencia -->
+          <button @click="enviarMail(dea.emails)">Aviso de emergencia</button>
           <!--   <button @click="enviarMail(emailsArray)">Aviso de emergencia</button>-->
         </li>
       </ul>
@@ -104,7 +102,6 @@ export default {
       map: null,
       // flag para mostrar el mensaje de envío de correo
       mensajeEnviado: false,
-      emailsArray: [],
     };
   },
 
@@ -204,18 +201,7 @@ export default {
           const latitud = parseFloat(dea.latitude);
           const longitud = parseFloat(dea.longitude);
 
-          if (Array.isArray(dea.emails) && dea.emails.length > 0) {
-            // Utilizar una expresión regular para dividir la cadena de correos electrónicos
-            const emailsArray = dea.emails[0].match(/\S+@\S+/g) || [];
-
-            //const emailsArray = dea.emails;
-
-            console.log("---->  la constante: ", emailsArray);
-          } else {
-            console.warn(
-              `La lista de correos electrónicos está vacía para ${dea.name}.`
-            );
-          }
+          console.log("---->  los mails q vienen ", dea.emails);
 
           if (!isNaN(latitud) && !isNaN(longitud)) {
             // Agregar marcador al mapa con información del DEA y enlace para centrar
@@ -263,38 +249,14 @@ export default {
       return distancia;
     },
 
-    // AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-    /*     async enviarMail(emailsArray) {
-      const mail = emailsArray[0];
-      console.log("---->  en el metodo enviar mail:", mail);
-      try {
-        console.log("---->  en el try :", mail);
-        const response = await axios.post(
-          "http://127.0.0.1:8081/api/mails/enviar-mail",
-          { mail: emailsArray }
-        );
-        console.log(response.data);
-      } catch (error) {
-        console.error("Error al enviar los correos electrónicos:", error);
-      }
-    }, */
-
     // Método para enviar un correo al DEA más cercano
-    async enviarMail(emailsArray) {
+    async enviarMail(dea) {
       // Validar que haya al menos un correo electrónico antes de enviar
-      // if (emailsArray && emailsArray.length > 0) {
+      if (dea.emails != null) {
+        console.log("---->  en el metodo enviar mail:", dea.emails);
 
-      const mail = emailsArray[0];
-
-      console.log("---->  en el metodo enviar mail:", mail);
-
-      // Iterar sobre la lista de correos electrónicos y enviar uno por uno
-      emailsArray.forEach((email) => {
-        console.log("---->  en el for:", email);
         axios
-          .post("http://127.0.0.1:8081/api/mails/enviar-mail", {
-            email: email,
-          })
+          .post("http://127.0.0.1:8081/api/mails/enviar-mail")
           .then(() => {
             // Mostrar el alert de éxito
             this.mensajeEnviado = true;
@@ -302,13 +264,9 @@ export default {
           .catch((error) => {
             console.error("Error al enviar el correo", error);
           });
-      });
-      /*       } else {
+      } else {
         console.warn("La lista de correos electrónicos está vacía.");
-      } */
-
-      // Limpiar el array de correos electrónicos
-      //this.emailsArray = [];
+      }
     },
 
     // Método para centrar el mapa en las coordenadas de un DEA
